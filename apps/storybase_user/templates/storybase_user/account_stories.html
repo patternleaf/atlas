@@ -24,8 +24,9 @@
             <td>{{ story.last_edited }}</td>
             <td>{{ story.status|capfirst }}</td>
             <td><a class="build" href="{{ story.builder_url }}">{% trans "Build" %}</a></td>
-    </tbody>
+        </tr>
     {% endfor %}
+    </tbody>
 </table>
 {% else %}
 <p>{% trans "You have no stories" %}</p>
