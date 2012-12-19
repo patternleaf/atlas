@@ -666,6 +666,7 @@ body.story-builder .story-templates li.data-story h3 a{background-position:0 0;}
 body.story-builder .story-templates li.photovoice h3 a{background-position:0 -80px;}
 body.story-builder .story-templates li.explainer h3 a{background-position:0 -160px;}
 body.story-builder .story-templates li.sandbox-basic-story h3 a{background-position:0 -240px;}
+body.story-builder .story-templates li.even{clear:left;}
 body.story-builder .vertical-space{margin-top:0.5%;}
 body.story-builder .vertical-space-important{margin-top:0.5% !important;}
 body.story-builder .full-width-important{width:100%;-webkit-box-sizing:border-box;-moz-box-sizing:border-box;-ms-box-sizing:border-box;width:100% !important;}
