@@ -645,6 +645,8 @@ storybase.explorer.views.Filters = Backbone.View.extend({
   },
 
   render: function() {
+    // clear existing select2 instances, if any
+    this.$('select').select2('destroy');
     var context = this.buildContext();
     this.$el.html(this.template(context));
     var selects = this.$('select').select2({
