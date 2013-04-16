@@ -10,10 +10,29 @@
 
   var HandlebarsTemplateView = storybase.views.HandlebarsTemplateView;
 
+  var NavigableMixin = {
+    handleNavClick: function(event) {
+      if (!$(event.target).hasClass('disabled')) {
+        if (Router) {
+          // we allow our router to handle the location change.
+          return true;
+        }
+        
+        // if there is no router we trigger an event for internal 
+        // use and prevent the anchor click from bubbling.
+        var sectionId = $(event.target).attr('href').split('/')[1];
+        this.trigger('navigate:section', sectionId);
+        
+        return false;
+      }
+    }
+  };
+
   // Container view for the viewer application.
   // It delegates rendering and events for the entire app to views
   // rendering more specific "widgets"
-  var ViewerApp = Views.ViewerApp = Backbone.View.extend({
+  var ViewerApp = Views.ViewerApp = Backbone.View.extend(
+    _.extend({}, NavigableMixin, {
     options: {
       tocEl: '#toc .story-toc',
       tocButtonEl: '#toggle-toc',
@@ -26,6 +45,7 @@
       var events = {};
       events['click ' + this.options.tocButtonEl] = 'toggleToc';
       events['resize figure img'] = 'handleImgResize';
+      events['click ' + this.options.tocEl + ' a'] = 'handleNavClick';
       return events;
     },
 
@@ -38,7 +58,8 @@
         sections: this.options.sections
       }); 
       this.navigationView.on('navigate:section', this.setSectionById, this);
-      
+      this.on('navigate:section', this.setSectionById, this);
+    
       // Has the view been rendered yet?
       this._rendered = false;
       this.setSection(this.sections.at(0), {showActiveSection: false});
@@ -108,14 +129,14 @@
     handleScroll: function(e) {
       // Do nothing. Subclasses might want to implement this to do some work
     },
-    
+  
     sizeFigCaption: function(el) {
       var width = $(el).width();
       this.$(el).next('figcaption').width(width);
       // Resize the figure element as well
       this.$(el).parent('figure').width(width);
     },
-    
+  
     sizeFigCaptions: function() {
       var view = this;
       this.$('figure img, figure iframe').each(function() {
@@ -128,11 +149,11 @@
         });
       });
     },
-    
+  
     handleImgResize: function(event) {
       this.sizeFigCaption(event.target);
     },
-    
+  
     openToc: function() {
       var $tocEl = $(this.options.tocEl);
       if (!$tocEl.data('open') || _.isUndefined($tocEl.data('open'))) {
@@ -147,7 +168,7 @@
       }
       return false;
     },
-    
+  
     closeToc: function() {
       var $tocEl = $(this.options.tocEl);
       if ($tocEl.data('open')) {
@@ -160,7 +181,7 @@
       }
       return false;
     },
-    
+  
     toggleToc: function() {
       if ($(this.options.tocEl).data('open')) {
         this.closeToc();
@@ -170,11 +191,13 @@
       }
       return false;
     }
-  });
+    })
+  );
 
 
   // View to provide previous/next buttons to navigate between sections
-  var StoryNavigation = Views.StoryNavigation = HandlebarsTemplateView.extend({
+  var StoryNavigation = Views.StoryNavigation = HandlebarsTemplateView.extend(
+    _.extend({}, NavigableMixin, {
     tagName: 'nav',
 
     id: 'story-nav',
@@ -182,7 +205,7 @@
     options: {
       templateSource: $('#navigation-template').html()
     },
-    
+  
     events: {
       'click a': 'handleNavClick'
     },
@@ -224,7 +247,7 @@
       }
       context.totalSectionsNum = this.sections.length;
       context.currentSectionNum = this.sections.models.indexOf(this.activeSection) + 1;
-      
+    
       this.$el.html(this.template(context));
       return this;
     },
@@ -257,24 +280,9 @@
     showConnectedStory: function() {
       this.showingConnectedStory = true; 
       this.render();
-    },
-    
-    handleNavClick: function(event) {
-      if (!$(event.target).hasClass('disabled')) {
-        if (Router) {
-          // we allow our router to handle the location change.
-          return true;
-        }
-        
-        // if there is no router we trigger an event for internal 
-        // use and prevent the anchor click from bubbling.
-        var sectionId = $(event.target).attr('href').split('/')[1];
-        this.trigger('navigate:section', sectionId);
-        
-        return false;
-      }
     }
-  });
+  })
+  );
 
   // Interative visualization of a spider story structure
   var Spider = Views.Spider = Backbone.View.extend({
